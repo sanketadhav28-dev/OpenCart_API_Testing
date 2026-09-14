@@ -1,0 +1,263 @@
+openapi: 3.0.3
+info:
+  title: OpenCart QA Cart API
+  description: |
+    Swagger/OpenAPI documentation for the custom OpenCart QA API project.
+
+    Workflow:
+      1. Create session/token
+      2. Add product to cart
+      3. Get cart
+      4. Edit cart quantity
+      5. Delete cart item
+
+    Base URL is represented by the Postman variable {{baseUrl}}.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost/opencart/upload
+    description: Local XAMPP/OpenCart server
+
+tags:
+  - name: Authentication
+  - name: Cart
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: token
+
+  schemas:
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: string
+          example: "Success: API session successfully started!"
+        api_token:
+          type: string
+          example: "your-generated-token"
+
+    AddProductRequest:
+      type: object
+      required:
+        - product_id
+        - quantity
+      properties:
+        product_id:
+          type: integer
+          example: 43
+        quantity:
+          type: integer
+          minimum: 1
+          example: 1
+
+    AddProductResponse:
+      type: object
+      properties:
+        success:
+          type: string
+          example: "Product added to cart."
+        product_id:
+          type: integer
+          example: 43
+        quantity:
+          type: integer
+          example: 1
+
+    CartProduct:
+      type: object
+      properties:
+        key:
+          type: string
+          example: "1"
+        product_id:
+          type: integer
+          example: 43
+        name:
+          type: string
+          example: MacBook
+        quantity:
+          type: integer
+          example: 2
+        price:
+          type: number
+          format: float
+          example: 500
+
+    CartResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartProduct'
+        total_items:
+          type: integer
+          example: 1
+
+    EditCartRequest:
+      type: object
+      required:
+        - key
+        - quantity
+      properties:
+        key:
+          type: integer
+          minimum: 1
+          example: 1
+        quantity:
+          type: integer
+          minimum: 1
+          example: 2
+
+    EditCartResponse:
+      type: object
+      properties:
+        success:
+          type: string
+          example: "Cart quantity updated."
+        key:
+          type: integer
+          example: 1
+        quantity:
+          type: integer
+          example: 2
+
+    DeleteCartRequest:
+      type: object
+      required:
+        - key
+      properties:
+        key:
+          type: integer
+          minimum: 1
+          example: 1
+
+paths:
+  /index.php:
+    post:
+      tags:
+        - Authentication
+      summary: Create Session / Token
+      description: Creates an API session and returns a bearer token.
+      parameters:
+        - name: route
+          in: query
+          required: true
+          schema:
+            type: string
+            example: aseapi/login
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - username
+                - key
+              properties:
+                username:
+                  type: string
+                  example: demo
+                key:
+                  type: string
+                  description: OpenCart API key.
+                  example: your-api-key
+      responses:
+        '200':
+          description: Session successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+
+  /index.php?route=aseapi/cart.add:
+    post:
+      tags:
+        - Cart
+      summary: Add Product to Cart
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AddProductRequest'
+      responses:
+        '200':
+          description: Product added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddProductResponse'
+
+  /index.php?route=aseapi/cart.get:
+    get:
+      tags:
+        - Cart
+      summary: Get Cart
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Current cart contents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartResponse'
+
+  /index.php?route=aseapi/cart.edit:
+    post:
+      tags:
+        - Cart
+      summary: Edit Cart Quantity
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EditCartRequest'
+      responses:
+        '200':
+          description: Cart quantity updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EditCartResponse'
+
+  /index.php?route=aseapi/cart.delete:
+    post:
+      tags:
+        - Cart
+      summary: Delete Cart Item
+      description: Deletes a cart item using its cart key. This project exposes the delete operation through POST.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeleteCartRequest'
+      responses:
+        '200':
+          description: Request processed. The API may return an application-level error message even when the HTTP status is 200.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                example:
+                  success: "Cart item deleted."
+        '400':
+          description: Invalid request

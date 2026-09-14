@@ -1,0 +1,442 @@
+{
+  "info": {
+    "_postman_id": "302b4954-dec8-4e35-8751-848c89ddd08b",
+    "name": "OpencardProject",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "47256316",
+    "_collection_link": "https://go.postman.co/collection/47256316-302b4954-dec8-4e35-8751-848c89ddd08b?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "01_Create_Token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "var jsonData = pm.response.json();\r",
+              "\r",
+              "pm.test(\"Checking success message\", function () {\r",
+              "    pm.expect(jsonData.success).to.eql(\"Success: API session successfully started!\");\r",
+              "});\r",
+              "pm.collectionVariables.set(\"api_token_val\", jsonData.api_token);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "username",
+              "value": "demo",
+              "type": "text",
+              "uuid": "de3a0d41-02a7-4b63-87be-aa7941a05a78"
+            },
+            {
+              "key": "key",
+              "value": "yWtqiGOzfLbUExYwwiZWr2pl6gKshdHF3BDWMlfAl4Ae5MRHLDN3XqJFKXqiLlhfQCVY4breJ1FIYJ8ZGtZiKZcLZw1IejG8OkdVWDn8Pcnl5eCMt6wm3JCNm5vUHiRMRNKiovtmP30VhvDrU8DlkgWczO6ek6ZDh8shEmzqKO5gze17WmYseiCpRH4PiDVLRbpfiF1852Pfjlvnb1yStA0VTDXsSMR0CoKfTR5o2Et5quyRC5cX5Vo6p3WcIxCt",
+              "type": "text",
+              "uuid": "e3380106-59bb-4771-82b4-dfb115ce1a97"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{openkart}}index.php?route=aseapi/login",
+          "host": [
+            "{{openkart}}index",
+            "php"
+          ],
+          "query": [
+            {
+              "key": "route",
+              "value": "aseapi/login"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "02_Add_Product",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Check status code\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "var jsonData = pm.response.json();\r",
+              "\r",
+              "pm.test(\"Success message\", function () {\r",
+              "    pm.expect(jsonData.success).to.eql(\"Product added to cart.\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Check product ID\", function () {\r",
+              "    pm.expect(jsonData.product_id).to.eql(44);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Check quantity\", function () {\r",
+              "    pm.expect(jsonData.quantity).to.eql(6);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{api_token_val}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "product_id",
+              "value": "{{product_id}}",
+              "type": "text",
+              "uuid": "b1e90e97-b381-4d77-b52b-372a09ce9af3"
+            },
+            {
+              "key": "quantity",
+              "value": "{{quantity}}",
+              "type": "text",
+              "uuid": "36b13b1e-d5e5-4fd1-b155-941d45a7c841"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{openkart}}index.php?route=aseapi/cart.add",
+          "host": [
+            "{{openkart}}index",
+            "php"
+          ],
+          "query": [
+            {
+              "key": "route",
+              "value": "aseapi/cart.add"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "03_Get_Cart",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Check status\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "\r",
+              "    var jsonData = pm.response.json();\r",
+              "\r",
+              "    pm.expect(jsonData.success).to.eql(true);\r",
+              "\r",
+              "    pm.expect(jsonData.products[0].product_id).to.eql(44);\r",
+              "\r",
+              "    pm.collectionVariables.set(\"cart_key\", Number(jsonData.products[0].key));\r",
+              "\r",
+              "    pm.collectionVariables.set(\"cart_quantity\", jsonData.products[0].quantity);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{api_token_val}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{openkart}}index.php?route=aseapi/cart.get",
+          "host": [
+            "{{openkart}}index",
+            "php"
+          ],
+          "query": [
+            {
+              "key": "route",
+              "value": "aseapi/cart.get"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "04_Edit_Cart_Quantity",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Check status code\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "var jsonData = pm.response.json();\r",
+              "\r",
+              "pm.test(\"Check success message\", function () {\r",
+              "    pm.expect(jsonData.success).to.eql(\"Cart quantity updated.\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Check cart key\", function () {\r",
+              "    pm.expect(jsonData.key).to.eql(\r",
+              "        Number(pm.collectionVariables.get(\"cart_key\"))\r",
+              "    );\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Check updated quantity\", function () {\r",
+              "    pm.expect(jsonData.quantity).to.eql((3));\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{api_token_val}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "key",
+              "value": "{{cart_key}}",
+              "type": "text",
+              "uuid": "5ead5661-7013-40a5-9da6-56239082d3ed"
+            },
+            {
+              "key": "quantity",
+              "value": "3",
+              "type": "text",
+              "uuid": "231dd10f-33c5-457c-8873-26b2afaf8757"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{openkart}}index.php?route=aseapi/cart.edit",
+          "host": [
+            "{{openkart}}index",
+            "php"
+          ],
+          "query": [
+            {
+              "key": "route",
+              "value": "aseapi/cart.edit"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "05_Get_Cart_After_Edit",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Check status code\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "var jsonData = pm.response.json();\r",
+              "\r",
+              "pm.test(\"Check success message\", function () {\r",
+              "    pm.expect(jsonData.success).to.eql(\"Product removed from cart.\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{api_token_val}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "key",
+              "value": "{{cart_key}}",
+              "type": "text",
+              "uuid": "52620508-4d64-49fb-81f4-2d86e4963b67"
+            },
+            {
+              "key": "cart_quantity",
+              "value": "{{cart_quantity}}",
+              "type": "text",
+              "uuid": "e25ebcd7-1c42-456e-bbe9-369a54207a6e"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{openkart}}index.php?route=aseapi/cart.delete",
+          "host": [
+            "{{openkart}}index",
+            "php"
+          ],
+          "query": [
+            {
+              "key": "route",
+              "value": "aseapi/cart.delete"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "06_Delete_Cart_Item",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Check status code\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "var jsonData = pm.response.json();\r",
+              "\r",
+              "pm.test(\"Cart is empty\", function () {\r",
+              "    pm.expect(jsonData.products).to.be.an(\"array\").that.is.empty;\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Total items is zero\", function () {\r",
+              "    pm.expect(jsonData.total_items).to.eql(0);\r",
+              "});\r",
+              "\r",
+              "pm.collectionVariables.unset(\"api_token_val\");\r",
+              "pm.collectionVariables.unset(\"cart_key\");\r",
+              "pm.collectionVariables.unset(\"cart_quantity\");"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{api_token_val}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{openkart}}index.php?route=aseapi/cart.get",
+          "host": [
+            "{{openkart}}index",
+            "php"
+          ],
+          "query": [
+            {
+              "key": "route",
+              "value": "aseapi/cart.get"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "openkart",
+      "value": ""
+    }
+  ]
+}
